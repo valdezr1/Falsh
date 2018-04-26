@@ -38,7 +38,11 @@ void promptHelp(){
 
 int main(int argc, char** argv){
 	
+	char* userInput;
+	int read = 0;
+	size_t nbytes = 256;
 	
+
 	//Check for [-h] 
 	if (argc == 2) {
 		//Check if 2nd arg is "-h"
@@ -57,8 +61,20 @@ int main(int argc, char** argv){
 		exit(EXIT_FAILURE);
 	}
 	else {
+		userInput = (char*)malloc(nbytes);
+		
 		//Prompt user
 		prompt();
+		while(1){
+			
+			read = getline(&userInput, &nbytes, stdin);
+			//Check if user writes exit
+			if(!strcmp(userInput,"exit\n")){
+				free(userInput);
+				printf("\nExiting Falcon Shell\n\n");
+				exit(EXIT_SUCCESS);
+			}
+		}
 	}
 
 	return 0;
