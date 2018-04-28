@@ -36,11 +36,25 @@ void promptHelp(){
 
 }
 
+void pwdCommand(size_t nbytes, char* cstr){
+	//getcwd gets path up until working directory
+	//	Takes in c-str and size
+	//	Saves path into passed c-str
+	//	Returns NULL if path is larger than allotted size
+	if(getcwd(cstr, nbytes) != NULL){;
+		printf("%s\n", cstr);
+	}
+	else{
+		printf("Path too large to print\n");
+	}
+}
+
 int main(int argc, char** argv){
 	
 	char* userInput;
+	char* substr;
 	int read = 0;
-	size_t nbytes = 256;
+	size_t nbytes = 256; //Can't be a const due to use in getline 
 	
 
 	//Check for [-h] 
@@ -61,18 +75,36 @@ int main(int argc, char** argv){
 		exit(EXIT_FAILURE);
 	}
 	else {
+		//allocates memory for userInput: MAX at 256 bytes
 		userInput = (char*)malloc(nbytes);
 		
 		//Prompt user
 		prompt();
 		while(1){
-			
+			printf("falsh > $ ");	
 			read = getline(&userInput, &nbytes, stdin);
-			//Check if user writes exit
-			if(!strcmp(userInput,"exit\n")){
-				free(userInput);
+			
+			//Check if user inputs pwd
+			if(!strcmp(userInput, "pwd\n")){
+				pwdCommand(nbytes, userInput);	
+			}
+			//Check if user inputs exit
+			else if(!strcmp(userInput,"exit\n")){
+				free(userInput); //deallocates memory
 				printf("\nExiting Falcon Shell\n\n");
 				exit(EXIT_SUCCESS);
+			}
+			//Cases in where user input is invalid 
+			//	Or represents more than one argument 
+			else {
+				//Check if user inputs cd
+				substr = (char*)malloc(nbytes);
+				if(strncpy(substr, userInput, 2)) {
+					printf("%s\n", substr);
+				}
+				else{
+					printf("Unrecognized Command\n");
+				}
 			}
 		}
 	}
