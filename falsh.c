@@ -50,21 +50,26 @@ void pwdCommand(size_t nbytes, char* cstr){
 }
 
 int cdCommand(char* command, size_t nbytes){
-//	if(strncpy(substr, userInput + 3, 2)) {
-//		printf("%s\n", substr);
-//		free(substr);
-//	}
-	char* directoryName = (char*) malloc(nbytes);
-	strcpy(directoryName, command + 3); //from position 3 till end
-	printf("%s", directoryName);
-	free(directoryName);
 
-	return 0; //Directory not found
+	char* directoryName = (char*) malloc(nbytes);
+	char* path = (char*) malloc(nbytes);
+	int ret = 1;
+	strcpy(directoryName, command + 3); //from position 3 till end
+	
+	strcpy(path, "/");
+	strcat(path, directoryName);
+	ret = chdir(directoryName);
+
+	free(directoryName);
+	free(path);
+
+	return ret; //Directory not found
 }
 
 int main(int argc, char** argv){
 	
 	char* userInput;
+	char* workDir;
 	char* substr;
 	int read = 0;
 	size_t nbytes = 256; //Can't be a const due to use in getline 
@@ -90,11 +95,13 @@ int main(int argc, char** argv){
 	else {
 		//allocates memory for userInput: MAX at 256 bytes
 		userInput = (char*)malloc(nbytes);
-		
+		workDir = (char*)malloc(nbytes);
+
 		//Prompt user
 		prompt();
 		while(1){
-			printf("falsh > $ ");	
+			getcwd(workDir, nbytes);
+			printf("falsh>%s $ ", workDir);	
 			read = getline(&userInput, &nbytes, stdin);
 			
 			//Check if user inputs pwd
@@ -114,8 +121,9 @@ int main(int argc, char** argv){
 				substr = (char*)malloc(nbytes);
 				strncpy(substr, userInput, 2);
 				if(!strcmp(substr, "cd")) {
-					if(!cdCommand(userInput, nbytes)){
-						printf("Directory not Found\n");//Directory not found
+					userInput[strcspn(userInput, "\n")] = 0; //Gets rid of the trailing '\n'
+					if(cdCommand(userInput, nbytes) == -1){
+						printf("Directory not Found\n"); //Directory not found
 					}
 				}
 				else{
