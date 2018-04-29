@@ -54,8 +54,8 @@ int cdCommand(char* command, size_t nbytes){
 	char* directoryName = (char*) malloc(nbytes);
 	char* path = (char*) malloc(nbytes);
 	int ret = 1;
-	strcpy(directoryName, command + 3); //from position 3 till end
-	
+	strcpy(directoryName, command + 3); 	// from position 3 till end
+						// 	'\0' included
 	strcpy(path, "/");
 	strcat(path, directoryName);
 	ret = chdir(directoryName);
@@ -119,7 +119,8 @@ int main(int argc, char** argv){
 			else {
 				//Check if user inputs cd
 				substr = (char*)malloc(nbytes);
-				strncpy(substr, userInput, 2);
+				strncpy(substr, userInput, 3); 	// Increased to 3 to account for '\0'
+				substr[2] = '\0';		// Changed 3rd element of substr to '\0'
 				if(!strcmp(substr, "cd")) {
 					userInput[strcspn(userInput, "\n")] = 0; //Gets rid of the trailing '\n'
 					if(cdCommand(userInput, nbytes) == -1){
