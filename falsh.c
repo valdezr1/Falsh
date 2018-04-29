@@ -49,6 +49,19 @@ void pwdCommand(size_t nbytes, char* cstr){
 	}
 }
 
+int cdCommand(char* command, size_t nbytes){
+//	if(strncpy(substr, userInput + 3, 2)) {
+//		printf("%s\n", substr);
+//		free(substr);
+//	}
+	char* directoryName = (char*) malloc(nbytes);
+	strcpy(directoryName, command + 3); //from position 3 till end
+	printf("%s", directoryName);
+	free(directoryName);
+
+	return 0; //Directory not found
+}
+
 int main(int argc, char** argv){
 	
 	char* userInput;
@@ -99,15 +112,21 @@ int main(int argc, char** argv){
 			else {
 				//Check if user inputs cd
 				substr = (char*)malloc(nbytes);
-				if(strncpy(substr, userInput, 2)) {
-					printf("%s\n", substr);
+				strncpy(substr, userInput, 2);
+				if(!strcmp(substr, "cd")) {
+					if(!cdCommand(userInput, nbytes)){
+						printf("Directory not Found\n");//Directory not found
+					}
 				}
 				else{
 					printf("Unrecognized Command\n");
 				}
+			
+				free(substr);
+
 			}
 		}
 	}
-
+	
 	return 0;
 }
