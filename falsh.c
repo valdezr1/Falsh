@@ -68,7 +68,11 @@ int cdCommand(char* command, size_t nbytes){
 
 int setPathCommand(char* command, size_t nbytes){
 	char* path = (char*)malloc(nbytes);
-	path = getenv("PATH"); //gets environment variable value specified
+	char* curPath;
+	int i;
+	int ret;
+	//path = getenv("PATH"); //gets environment variable value specified
+	
 
 	// Function to setpath: int setEnv(const char* name, const char* value, int overwrite)
 	//	Takes in name as the environment variable name (in this case it would be "PATH")
@@ -80,12 +84,27 @@ int setPathCommand(char* command, size_t nbytes){
 	// Ideas:
 	// 	* Could try to build a large cstring through recursion and returning new cstrings
 	// 		over and over while concatinating
-	//	* Could replace ' ' with a ';' which seems to be how the environment variable stores
+	//	* Could replace ' ' with a ';' or ':' which seems to be how the environment variable stores
 	//		the path to multiple directories
 	
+	strcpy(path, command + 8);
+	//Replace the ' ' with ':'
+	for(i = 0; i < strlen(path); i++){
+		if(path[i] == ' '){
+			path[i]= ':';
+		}
+	}
+
+	ret = setenv("PATH", path, 1);
+ 
+	curPath = getenv("PATH");
 
 	printf("PATH: %s\n", path);
 	printf("setPathCommand() ran\n");
+	free(path);
+	
+
+	return ret;
 }
 
 int main(int argc, char** argv){
