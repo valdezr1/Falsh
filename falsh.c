@@ -70,7 +70,8 @@ int main(int argc, char** argv){
 	
 	char* userInput;
 	char* workDir;
-	char* substr;
+	char* checkCD;
+	char* checkSetPath;
 	int read = 0;
 	size_t nbytes = 256; //Can't be a const due to use in getline 
 	
@@ -118,20 +119,32 @@ int main(int argc, char** argv){
 			//	Or represents more than one argument 
 			else {
 				//Check if user inputs cd
-				substr = (char*)malloc(nbytes);
-				strncpy(substr, userInput, 3); 	// Increased to 3 to account for '\0'
-				substr[2] = '\0';		// Changed 3rd element of substr to '\0'
-				if(!strcmp(substr, "cd")) {
-					userInput[strcspn(userInput, "\n")] = 0; //Gets rid of the trailing '\n'
+				checkCD = (char*)malloc(nbytes);
+				strncpy(checkCD, userInput, 3); // Increased to 3 to account for '\0'
+				checkCD[2] = '\0';		// Changed 3rd element of checkCD to '\0'
+
+				//Check if user inputs setpath
+				checkSetPath = (char*)malloc(nbytes);
+				strncpy(checkSetPath, userInput, 8);	//Increased to 8 to account for '\0'
+				checkSetPath[7] = '\0';			//Changed 7th element of checkSetPath to '\0'
+
+				//Gets rid of trailing '\n' in userInput from getline
+				userInput[strcspn(userInput, "\n")] = 0; 
+
+				if(!strcmp(checkCD, "cd")) {	
 					if(cdCommand(userInput, nbytes) == -1){
 						printf("Directory not Found\n"); //Directory not found
 					}
+				}
+				else if(!strcmp(checkSetPath, "setpath")){
+					printf("Setpath command invoked\n");
 				}
 				else{
 					printf("Unrecognized Command\n");
 				}
 			
-				free(substr);
+				free(checkCD);
+				free(checkSetPath);
 
 			}
 		}
