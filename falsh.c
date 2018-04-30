@@ -66,6 +66,28 @@ int cdCommand(char* command, size_t nbytes){
 	return ret; //Directory not found
 }
 
+int setPathCommand(char* command, size_t nbytes){
+	char* path = (char*)malloc(nbytes);
+	path = getenv("PATH"); //gets environment variable value specified
+
+	// Function to setpath: int setEnv(const char* name, const char* value, int overwrite)
+	//	Takes in name as the environment variable name (in this case it would be "PATH")
+	//	And sets the environment variable specified with the value of the passed value.
+	//	If it the environment variable exists (which "PATH" will), then the overwrite will
+	//	Have to be non-zero to overwrite the existing environment variable.
+	//	Returns 0 if successful or -1 if errored
+	
+	// Ideas:
+	// 	* Could try to build a large cstring through recursion and returning new cstrings
+	// 		over and over while concatinating
+	//	* Could replace ' ' with a ';' which seems to be how the environment variable stores
+	//		the path to multiple directories
+	
+
+	printf("PATH: %s\n", path);
+	printf("setPathCommand() ran\n");
+}
+
 int main(int argc, char** argv){
 	
 	char* userInput;
@@ -137,6 +159,7 @@ int main(int argc, char** argv){
 					}
 				}
 				else if(!strcmp(checkSetPath, "setpath")){
+					setPathCommand(userInput, nbytes);
 					printf("Setpath command invoked\n");
 				}
 				else{
