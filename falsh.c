@@ -52,16 +52,13 @@ void pwdCommand(size_t nbytes, char* cstr){
 int cdCommand(char* command, size_t nbytes){
 
 	char* directoryName = (char*) malloc(nbytes);
-	char* path = (char*) malloc(nbytes);
+	
 	int ret = 1;
 	strcpy(directoryName, command + 3); 	// from position 3 till end
 						// 	'\0' included
-	strcpy(path, "/");
-	strcat(path, directoryName);
 	ret = chdir(directoryName);
 
 	free(directoryName);
-	free(path);
 
 	return ret; //Directory not found
 }
@@ -70,7 +67,7 @@ int setPathCommand(char* command, size_t nbytes){
 	char* path = (char*)malloc(nbytes);
 	char* curPath;
 	int i;
-	int ret;
+	int ret = -1;
 	//path = getenv("PATH"); //gets environment variable value specified
 	
 
@@ -88,7 +85,11 @@ int setPathCommand(char* command, size_t nbytes){
 	//		the path to multiple directories
 	
 	strcpy(path, command + 8);
+	
 	//Replace the ' ' with ':'
+	if (strlen(path) == 0){
+		return ret;
+	}
 	for(i = 0; i < strlen(path); i++){
 		if(path[i] == ' '){
 			path[i]= ':';
@@ -113,6 +114,8 @@ int main(int argc, char** argv){
 	char* workDir;
 	char* checkCD;
 	char* checkSetPath;
+	char* checkWorkDir;
+	char* runExec;
 	int read = 0;
 	size_t nbytes = 256; //Can't be a const due to use in getline 
 	
@@ -182,7 +185,28 @@ int main(int argc, char** argv){
 					printf("Setpath command invoked\n");
 				}
 				else{
-					printf("Unrecognized Command\n");
+					checkWorkDir = (char*)malloc(nbytes);
+					strncpy(checkWorkDir, userInput, 3);
+					checkWorkDir[2] = '\0';
+
+					if(!strcmp(checkWorkDir, "./")){
+						system(userInput);
+					}	
+					else {
+
+						runExec = (char*)malloc(nbytes);
+						strcpy(runExec, getenv("PATH"));
+						strcat(runExec, "/");
+						strcat(runExec, userInput);
+						if(system(runExec) == 0){
+							printf("Unrecognized Command\n");
+						}
+			
+						free(runExec);
+					}
+
+					free(checkWorkDir);
+					//printf("Unrecognized Command\n");
 				}
 			
 				free(checkCD);
@@ -190,6 +214,8 @@ int main(int argc, char** argv){
 
 			}
 		}
+		free(userInput);
+		free(workDir);
 	}
 	
 	return 0;
