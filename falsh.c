@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 //Prompts user that they have entered the Falcon Shell
 void prompt(){
@@ -116,6 +117,10 @@ int main(int argc, char** argv){
 	char* checkSetPath;
 	char* checkWorkDir;
 	char* runExec;
+
+	char* childArgs[256];
+
+	int rc;
 	int read = 0;
 	size_t nbytes = 256; //Can't be a const due to use in getline 
 	
@@ -189,18 +194,53 @@ int main(int argc, char** argv){
 					strncpy(checkWorkDir, userInput, 3);
 					checkWorkDir[2] = '\0';
 
+					
+					childArgs[0] = userInput;	//First argument will be the program the user inputs
+					childArgs[1] = NULL;		//Last argument will be NULL to end the search
 					if(!strcmp(checkWorkDir, "./")){
-						system(userInput);
+
+						rc = fork();
+						if(rc < 0){ //Failed
+							printf("Failed to fork.\n");
+						}
+						else if(rc == 0){
+							printf("Child Process Occuring Now:\n");
+							if(execvp(userInput, childArgs) == -1){ //exit if unable to be run
+								exit(0);
+							}
+						}
+						else{
+							wait(NULL);
+							printf("\nBack to Parent\n");
+						}	
+						//system(userInput);
 					}	
 					else {
-
 						runExec = (char*)malloc(nbytes);
 						strcpy(runExec, getenv("PATH"));
 						strcat(runExec, "/");
 						strcat(runExec, userInput);
-						if(system(runExec) == 0){
-							printf("Unrecognized Command\n");
+						
+						printf("runExec: %s\n", runExec);
+
+						rc = fork();
+						if(rc < 0){ //Failed
+							printf("Failed to fork\n");
 						}
+						else if (rc == 0){
+							printf("Child Process Occuring Now:\n");
+							if(execvp(runExec, childArgs) == -1){ //exit if unable to be run
+								exit(0);
+							}
+						}
+						else{
+							wait(NULL);
+							printf("\nBack to Parent\n");
+						}
+						
+						//if(system(runExec) == 0){
+						//	printf("Unrecognized Command\n");
+						//}
 			
 						free(runExec);
 					}
