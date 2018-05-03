@@ -117,6 +117,7 @@ int main(int argc, char** argv){
 	char* checkSetPath;
 	char* checkWorkDir;
 	char* runExec;
+	char* curPath;
 
 	char* childArgs[256];
 
@@ -216,33 +217,44 @@ int main(int argc, char** argv){
 						//system(userInput);
 					}	
 					else {
-						runExec = (char*)malloc(nbytes);
-						strcpy(runExec, getenv("PATH"));
-						strcat(runExec, "/");
-						strcat(runExec, userInput);
-						
-						printf("runExec: %s\n", runExec);
-
-						rc = fork();
-						if(rc < 0){ //Failed
-							printf("Failed to fork\n");
+						char* token;
+						curPath = (char*)malloc(nbytes);
+						strcpy(curPath, getenv("PATH"));
+						printf("curPath: %s\n", curPath);
+						int position = 0;
+					
+						token = strtok(curPath, ":");
+						while(runExec != NULL){
+								runExec = (char*)malloc(nbytes);
+					
+								strcpy(runExec, token);		
+								strcat(runExec, "/");
+								strcat(runExec, userInput);
+								printf("runExec: %s\n", runExec);	
+								
+								
+								rc = fork();
+								if(rc < 0){ //Failed
+									printf("Failed to fork\n");
+								}
+								else if (rc == 0){
+									printf("Child Process Occuring Now:\n");
+									if(execvp(runExec, childArgs) == -1){ //exit if unable to be run
+										exit(0);
+									}
+								}
+								else{
+									wait(NULL);
+									printf("\nBack to Parent\n");
+								}
+								
+								token = strtok(NULL, ":");
+								if(token == '\0'){
+									break;
+								}
+								free(runExec);	
 						}
-						else if (rc == 0){
-							printf("Child Process Occuring Now:\n");
-							if(execvp(runExec, childArgs) == -1){ //exit if unable to be run
-								exit(0);
-							}
-						}
-						else{
-							wait(NULL);
-							printf("\nBack to Parent\n");
-						}
-						
-						//if(system(runExec) == 0){
-						//	printf("Unrecognized Command\n");
-						//}
-			
-						free(runExec);
+						free(curPath);
 					}
 
 					free(checkWorkDir);
