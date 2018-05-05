@@ -118,6 +118,7 @@ int main(int argc, char** argv){
 	char* checkWorkDir;
 	char* runExec;
 	char* curPath;
+	char* argItr;
 
 	char* childArgs[256];
 
@@ -195,9 +196,17 @@ int main(int argc, char** argv){
 					strncpy(checkWorkDir, userInput, 3);
 					checkWorkDir[2] = '\0';
 
-					
-					childArgs[0] = userInput;	//First argument will be the program the user inputs
-					childArgs[1] = NULL;		//Last argument will be NULL to end the search
+					int count = 0;
+					argItr = strtok(userInput, " ");
+					while(argItr != NULL){
+						childArgs[count] = (char*)malloc(nbytes);
+						strcpy(childArgs[count], argItr);
+						count++;
+						argItr = strtok(NULL, " ");
+					}
+					//childArgs[0] = userInput;	//First argument will be the program the user inputs
+
+					childArgs[count] = NULL;		//Last argument will be NULL to end the search
 					if(!strcmp(checkWorkDir, "./")){
 
 						rc = fork();
@@ -224,7 +233,7 @@ int main(int argc, char** argv){
 						int position = 0;
 					
 						token = strtok(curPath, ":");
-						while(runExec != NULL){
+						while(token != NULL){
 								runExec = (char*)malloc(nbytes);
 					
 								strcpy(runExec, token);		
@@ -238,14 +247,14 @@ int main(int argc, char** argv){
 									printf("Failed to fork\n");
 								}
 								else if (rc == 0){
-									printf("Child Process Occuring Now:\n");
+									//printf("Child Process Occuring Now:\n");
 									if(execvp(runExec, childArgs) == -1){ //exit if unable to be run
 										exit(0);
 									}
 								}
 								else{
 									wait(NULL);
-									printf("\nBack to Parent\n");
+									//printf("\nBack to Parent\n");
 								}
 								
 								token = strtok(NULL, ":");
