@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 
 //Prompts user that they have entered the Falcon Shell
-void prompt(){
+void prompt(){ 
 	printf("\n");
 	printf("*******************************************\n\n");
 	
@@ -13,7 +13,7 @@ void prompt(){
 
 	printf("*******************************************\n\n");
 }
-
+//-h prompt
 void promptHelp(){
 
 	printf("\n");
@@ -207,7 +207,7 @@ int main(int argc, char** argv){
 					//childArgs[0] = userInput;	//First argument will be the program the user inputs
 
 					childArgs[count] = NULL;		//Last argument will be NULL to end the search
-					if(!strcmp(checkWorkDir, "./")){
+					if(!strcmp(checkWorkDir, "./")){ // If argument starts with ./ to run in cur directory
 
 						rc = fork();
 						if(rc < 0){ //Failed
@@ -226,13 +226,14 @@ int main(int argc, char** argv){
 						//system(userInput);
 					}	
 					else {
+						//read path token by token separated by ':'
 						char* token;
 						curPath = (char*)malloc(nbytes);
-						strcpy(curPath, getenv("PATH"));
+						strcpy(curPath, getenv("PATH")); 
 						printf("curPath: %s\n", curPath);
 						int position = 0;
 					
-						token = strtok(curPath, ":");
+						token = strtok(curPath, ":"); //':' delimiter to copy into tokens
 						while(token != NULL){
 								runExec = (char*)malloc(nbytes);
 					
@@ -241,7 +242,7 @@ int main(int argc, char** argv){
 								strcat(runExec, userInput);
 								printf("runExec: %s\n", runExec);	
 								
-								
+								//Forks process if exist in path
 								rc = fork();
 								if(rc < 0){ //Failed
 									printf("Failed to fork\n");
